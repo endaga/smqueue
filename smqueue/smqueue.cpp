@@ -1087,6 +1087,8 @@ void SMq::process_timeout()
 			// not to reference qmsg (I don't know a C++ way
 			// to set it to NULL or delete it or something).
 			temp.pop_front();
+			//update stable storage
+			save_queue_to_file(savefile);
 		    }
 			break;
 
@@ -1427,7 +1429,7 @@ SMq::originate_sm(const char *from, const char *to, const char *msgtext,
 	
 	errcode = response->validate_short_msg(this, false);
 	if (errcode == 0) {
-		insert_new_message (*smpl, firststate); // originate_sm
+		insert_new_message (*smpl, firststate, true); // originate_sm
 	}
 	else {
 		LOG(DEBUG) << "Short message validate failed, error " << errcode;
@@ -1734,7 +1736,7 @@ SMq::register_handset(short_msg_p_list::iterator qmsg)
 
 	// Pop new SIP REGISTER out of the smpl queue-of-one and
 	// into the real queue, where it will very soon be delivered.
-	insert_new_message (*smpl, REQUEST_MSG_DELIVERY); // In register_handset
+	insert_new_message (*smpl, REQUEST_MSG_DELIVERY, true); // In register_handset
 	// We can't reference response, or *smpl, any more...
 
 	delete smpl;
@@ -2465,7 +2467,7 @@ void SMq::main_loop(int msTMO)
 
 // **********************************************************************
 // ****************** Insert a message in the queue *********************
-			insert_new_message(*smpl); // Reader thread main_loop
+			insert_new_message(*smpl, true); // Reader thread main_loop
 			errcode = 202;
 			// It's OK to reference "smp" here, whether it's in the
 			// smpl list, or has been moved into the main time_sorted_list.
@@ -2516,6 +2518,9 @@ SMq::save_queue_to_file(std::string qfile)
 	unsigned howmany = 0;
 	LOG(DEBUG) << "save_queue_to_file:" << qfile;
 
+	//if it crashes during message write we can lose stuff. Better 
+	//than nothing for now --kurtis
+	//overwrites by default
 	ofile.open(qfile.c_str(), ios::out | ios::binary | ios::trunc);
 	if (!ofile.is_open())
 		return false;
@@ -2630,7 +2635,7 @@ SMq::read_queue_from_file(std::string qfile)
 					  << " direction=" << (smp->ms_to_sc?"MS->SC":"SC->MS")
 					  << " need_repack=" << (smp->need_repack?"true":"false");
 				// Fixed error where invalid messages were getting put in the queue
-				insert_new_message (*smpl, mystate, mytime); // In read_queue_from_file
+				insert_new_message (*smpl, mystate, mytime, false); // In read_queue_from_file
 			} else {
 				LOG(DEBUG) << "Read bad SMS "
 				     << smp->parsed->status_code

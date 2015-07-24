@@ -1108,38 +1108,27 @@ class SMq {
 	// them to the real list.  Note that this moves the message's list
 	// entry itself off the original list (which can then be discarded).
 	// Push_front only does a copy so use splice ??
-	void insert_new_message(short_msg_p_list &smp) {
-		lockSortedList();
-		time_sorted_list.splice (time_sorted_list.begin(), smp);
-		time_sorted_list.begin()->set_state (INITIAL_STATE);  // Note set state can move the entries in the queue
-		// time_sorted_list.begin()->timeout = 0;  // it is already
-		// Low timeout will cause this msg to be at front of queue.
-		unlockSortedList();
-		debug_dump(); //svgfix
-		ProcessReceivedMsg();
-	}
 
-	// This version lets the initial state be set.
-	void insert_new_message(short_msg_p_list &smp, enum sm_state s) {
-		LOG(DEBUG) << "Insert message into queue 2";
-		lockSortedList();
-		time_sorted_list.splice (time_sorted_list.begin(), smp);
-		time_sorted_list.begin()->set_state (s);
-		// time_sorted_list.begin()->timeout = 0;  // it is already
-		// Low timeout will cause this msg to be at front of queue.
-		unlockSortedList();
-		debug_dump(); //svgfix
-		ProcessReceivedMsg();
-	}
 	// This version lets the state and timeout be set.
-	void insert_new_message(short_msg_p_list &smp, enum sm_state s, time_t t) {
-		LOG(DEBUG) << "Insert message into queue 3";
+	void insert_new_message(short_msg_p_list &smp, enum sm_state s, time_t t, bool save) {
+		if (save){
+			save_queue_to_file(savefile);
+		}
 		lockSortedList();
 		time_sorted_list.splice (time_sorted_list.begin(), smp);
 		time_sorted_list.begin()->set_state (s, t);
 		unlockSortedList();
 		debug_dump(); //svgfix
 		ProcessReceivedMsg();
+	}
+
+	// This version lets the initial state be set.
+	void insert_new_message(short_msg_p_list &smp, enum sm_state s, bool save) {
+		insert_new_message(smp,s,0,save);
+	}
+
+	void insert_new_message(short_msg_p_list &smp, bool save) {
+		insert_new_message(smp,INITIAL_STATE,save);
 	}
 
 	/* Debug dump of the queue and the SMq class in general. */
