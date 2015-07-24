@@ -2861,7 +2861,7 @@ ConfigurationKeyMap getConfigurationKeys()
 	map[tmp->getName()] = *tmp;
 	delete tmp;
 
-	tmp = new ConfigurationKey("CDRFile","/var/lib/OpenBTS/smq.cdr",
+	tmp = new ConfigurationKey("CDRFile","/var/lib/smq.cdr",
 		"",
 		ConfigurationKey::CUSTOMER,
 		ConfigurationKey::FILEPATH_OPT,// audited
