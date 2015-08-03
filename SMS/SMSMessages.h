@@ -411,6 +411,9 @@ class TLDeliver : public TLMessage {
 		:TLMessage(),
 		mUD(wUD)
 	{}
+
+	// (pat 10-2013) This form is to re-parse a downlink message for inspection.
+	TLDeliver(const TLFrame& input);
 	
 	int MTI() const { return DELIVER; }
 
@@ -421,7 +424,7 @@ class TLDeliver : public TLMessage {
 
 	size_t l2BodyLength() const;
 	void writeBody( TLFrame& frame, size_t& wp ) const;
-	void parseBody(const TLFrame&, size_t&) { assert(0); }
+	void parseBody(const TLFrame&, size_t&);
 	virtual void text( std::ostream& os ) const;
 };
 

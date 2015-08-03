@@ -173,11 +173,15 @@ TLMessage *SMS::parseTPDU(const TLFrame& TPDU)
 	LOG(DEBUG) << "SMS: parseTPDU MTI=" << TPDU.MTI();
 	// Handle just the uplink cases.
 	switch ((TLMessage::MessageType)TPDU.MTI()) {
-		case TLMessage::DELIVER_REPORT:
 		case TLMessage::STATUS_REPORT:
 			// FIXME -- Not implemented yet.
 			LOG(WARNING) << "Unsupported TPDU type: " << (TLMessage::MessageType)TPDU.MTI();
 			return NULL;
+		case TLMessage::DELIVER_REPORT: {
+			TLDeliver * del = new TLDeliver(TPDU);
+			LOG(INFO) << "SMS SMS-DELIVER " << *del;
+			return del;
+		}
 		case TLMessage::SUBMIT: {
 			TLSubmit *submit = new TLSubmit;
 			submit->parse(TPDU);
@@ -828,6 +832,30 @@ void TLDeliver::writeBody(TLFrame& dest, size_t& wp) const
 	mUD.write(dest,wp);			// user data.
 }
 
+// GSM 3.40 9.2.2.1
+TLDeliver::TLDeliver(const TLFrame& fm)
+{
+	size_t rp = 8;
+	parseBody(fm,rp);
+}
+
+void TLDeliver::parseBody(const TLFrame &src, size_t &rp)
+{
+	// Note that offset is reversed, i'=7-i.
+	// Ignore MTI, we already know it is DELIVER.
+	// Note that these header fields come from src ignoring rp.
+	parseMMS(src);
+	parseRP(src);
+	parseUDHI(src);
+	parseSRI(src);
+	// Now the 'body'
+	assert(rp == 8);
+	mOA.parse(src,rp);			// originating address.
+	mPID = src.readField(rp,8);	// protocol id
+	mUD.DCS(src.readField(rp,8));	// data coding scheme, stored in the TLUserData.
+	mSCTS.parse(src,rp);		// time stamp
+	mUD.parse(src,rp);			// user data.
+}
 
 void TLDeliver::text(ostream& os) const
 {
