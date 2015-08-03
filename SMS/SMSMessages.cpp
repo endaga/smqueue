@@ -177,7 +177,7 @@ TLMessage *SMS::parseTPDU(const TLFrame& TPDU)
 			// FIXME -- Not implemented yet.
 			LOG(WARNING) << "Unsupported TPDU type: " << (TLMessage::MessageType)TPDU.MTI();
 			return NULL;
-		case TLMessage::DELIVER_REPORT: {
+		case TLMessage::DELIVER: {
 			TLDeliver * del = new TLDeliver(TPDU);
 			LOG(INFO) << "SMS SMS-DELIVER " << *del;
 			return del;
