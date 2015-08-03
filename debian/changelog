@@ -1,3 +1,9 @@
+smqueue-public (5.0.3) unstable; urgency=medium
+
+  * fixes the stable storage of messages and changes the default location for cdrs and save file
+
+ -- Kurtis Heimerl <kheimerl@endaga.com>  Mon, 03 Aug 2015 14:03:57 -0700
+
 smqueue-public (5.0.2) unstable; urgency=medium
 
   * No longer syslogs message contents 
