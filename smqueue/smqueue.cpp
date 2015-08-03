@@ -2861,7 +2861,7 @@ ConfigurationKeyMap getConfigurationKeys()
 	map[tmp->getName()] = *tmp;
 	delete tmp;
 
-	tmp = new ConfigurationKey("CDRFile","/var/lib/OpenBTS/smq.cdr",
+	tmp = new ConfigurationKey("CDRFile","/var/smq.cdr",
 		"",
 		ConfigurationKey::CUSTOMER,
 		ConfigurationKey::FILEPATH_OPT,// audited
@@ -2884,7 +2884,7 @@ ConfigurationKeyMap getConfigurationKeys()
 	map[tmp->getName()] = *tmp;
 	delete tmp;
 
-	tmp = new ConfigurationKey("savefile","/tmp/save",
+	tmp = new ConfigurationKey("savefile","/var/smqueue.save",
 		"",
 		ConfigurationKey::CUSTOMER,
 		ConfigurationKey::FILEPATH,

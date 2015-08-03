@@ -23,8 +23,11 @@ DB_LOC=/etc/OpenBTS/smqueue.db
 DATE=$(date +'%Y-%m-%d.%H:%M:%S')
 CONFIG_BACKUP=$DB_LOC.dump-$DATE
 
-if [ ! -e $DB_LOC ]; then
+if [ -e $DB_LOC ]; then
         sqlite3 $DB_LOC ".dump" > $CONFIG_BACKUP
+		#resetting these to factory defaults - kurtis
+		sqlite3 $DB_LOC "DELETE from config WHERE keystring='savefile';"
+		sqlite3 $DB_LOC "DELETE from config WHERE keystring='CDRFile';"
 fi
 
 sqlite3 $DB_LOC ".read /etc/OpenBTS/smqueue.example.sql" &>/dev/null
