@@ -1,3 +1,9 @@
+smqueue-public (5.0.4) unstable; urgency=medium
+
+  * fixes a bug in stable storage failing on empty messages and adds max retransmits to messages stored on disk
+
+ -- Kurtis Heimerl <kheimerl@endaga.com>  Tue, 11 Aug 2015 11:34:00 -0700
+
 smqueue-public (5.0.3) unstable; urgency=medium
 
   * fixes the stable storage of messages and changes the default location for cdrs and save file
