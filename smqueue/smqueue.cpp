@@ -2534,7 +2534,8 @@ SMq::save_queue_to_file(std::string qfile)
 		      << my_network.string_addr((struct sockaddr *)x->srcaddr, x->srcaddrlen, true) << " "
 		      << strlen(x->text) << " "
 		      << x->ms_to_sc << " "
-		      << x->need_repack << endl
+		      << x->need_repack << " "
+		      << x->retries << endl
 		      << x->text << endl << endl;
 		howmany++;
 		LOG(DEBUG) << "Write entry:" << howmany << " Len:" << strlen(x->text) << " MSG:" << x->text;
@@ -2561,7 +2562,7 @@ SMq::read_queue_from_file(std::string qfile)
 	ifstream ifile;
 	std::string equals;
 	unsigned astate, atime, alength;
-	unsigned ms_to_sc, need_repack;
+	unsigned ms_to_sc, need_repack, retries;
 	std::string short_code;
 	std::string netaddrstr;
 	sm_state mystate;
@@ -2590,6 +2591,11 @@ SMq::read_queue_from_file(std::string qfile)
 		ifile >> alength;
 		ifile >> ms_to_sc;
 		ifile >> need_repack;
+		if (ifile.peek() == '\n'){ //older format doesn't include this field
+			retries = 0;
+		} else {
+			ifile >> retries;
+		}
 		//LOG(DEBUG) << "netaddrstr=" << netaddrstr << " length=" << alength << " ms_to_sc="
 		//		<< ms_to_sc << " need_repack=" << need_repack;
 
@@ -2613,6 +2619,7 @@ SMq::read_queue_from_file(std::string qfile)
 		// Restore saved state
 		smp->ms_to_sc = ms_to_sc;
 		smp->need_repack = need_repack;
+		smp->retries = retries;
 
 		smp->srcaddrlen = 0;
 		if (!my_network.parse_addr(netaddrstr.c_str(), smp->srcaddr, sizeof(smp->srcaddr), &smp->srcaddrlen)) {
